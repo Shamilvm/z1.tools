@@ -38,7 +38,7 @@ const ResumeBuilder: React.FC = () => {
   const analyzeWithAi = async () => {
     setAnalyzing(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/resume/analyze', resumeData);
+      const response = await axios.post('http://localhost:5001/api/resume/analyze', resumeData);
       setSuggestions(response.data);
       toast.success('AI Analysis Complete!');
     } catch (error) {
@@ -51,7 +51,7 @@ const ResumeBuilder: React.FC = () => {
   const downloadPdf = async () => {
     toast.loading('Generating PDF...', { id: 'pdf' });
     try {
-      const response = await axios.post('http://localhost:5000/api/resume/generate', resumeData, {
+      const response = await axios.post('http://localhost:5001/api/resume/generate', resumeData, {
         responseType: 'blob'
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));

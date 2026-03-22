@@ -13,7 +13,7 @@ const PublicPortfolio: React.FC = () => {
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/portfolio/${username}`);
+        const response = await axios.get(`http://localhost:5001/api/portfolio/${username}`);
         setData(response.data);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Portfolio not found');

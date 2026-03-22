@@ -1,43 +1,87 @@
 import express, { Request, Response } from 'express';
-import Portfolio from '../models/Portfolio';
-import Resume from '../models/Resume';
+import { supabase } from '../services/supabaseService';
 import { protect, AuthRequest } from '../middleware/auth';
 
 const router = express.Router();
 
 // @route   POST /api/portfolio/create
-// @desc    Save resume data and create/update portfolio link
+// @desc    Create or update portfolio
 router.post('/create', protect, async (req: AuthRequest, res: Response) => {
-  const resume = await Resume.create({
-    userId: req.user!._id,
-    ...req.body.resumeData,
-  });
+  const { resumeData, theme } = req.body;
+  const userId = req.user.id;
 
-  const portfolio = await Portfolio.findOneAndUpdate(
-    { userId: req.user!._id },
-    {
-      resumeId: resume._id,
-      username: req.user!.username,
-      theme: req.body.theme || 'modern-purple',
-    },
-    { upsert: true, new: true }
-  );
+  try {
+    // 1. Get profile for username
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('id', userId)
+      .single();
 
-  res.status(201).json(portfolio);
+    if (!profile) return res.status(404).json({ message: 'Profile not found' });
+
+    // 2. Save/Update Resume
+    const { data: resume, error: resumeError } = await supabase
+      .from('resumes')
+      .upsert({
+        user_id: userId,
+        personal_info: resumeData.personalInfo,
+        about: resumeData.about,
+        experience: resumeData.experience,
+        education: resumeData.education,
+        skills: resumeData.skills,
+        projects: resumeData.projects,
+        achievements: resumeData.achievements,
+        updated_at: new Date()
+      }, { onConflict: 'user_id' }) // Simple logic for demo
+      .select()
+      .single();
+
+    if (resumeError) throw resumeError;
+
+    // 3. Save/Update Portfolio
+    const { data: portfolio, error: portfolioError } = await supabase
+      .from('portfolios')
+      .upsert({
+        user_id: userId,
+        resume_id: resume.id,
+        username: profile.username,
+        theme: theme || 'modern-purple',
+        updated_at: new Date()
+      }, { onConflict: 'user_id' })
+      .select()
+      .single();
+
+    if (portfolioError) throw portfolioError;
+
+    res.status(201).json(portfolio);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
 // @route   GET /api/portfolio/:username
-// @desc    Get public portfolio data
+// @desc    Get public portfolio
 router.get('/:username', async (req: Request, res: Response) => {
-  const portfolio = await Portfolio.findOne({ username: req.params.username })
-    .populate('resumeId')
-    .populate('userId', 'name email username');
+  const { username } = req.params;
 
-  if (!portfolio) {
-    return res.status(404).json({ message: 'Portfolio not found' });
+  try {
+    const { data: portfolio, error } = await supabase
+      .from('portfolios')
+      .select(`
+        *,
+        userId:user_id,
+        resumeId:resumes (*)
+      `)
+      .eq('username', username)
+      .single();
+
+    if (error || !portfolio) return res.status(404).json({ message: 'Portfolio not found' });
+
+    res.json(portfolio);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
   }
-
-  res.json(portfolio);
 });
 
 export default router;

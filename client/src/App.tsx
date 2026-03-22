@@ -10,6 +10,7 @@ const ResumeBuilder = React.lazy(() => import('./pages/ResumeBuilder'));
 const Portfolio = React.lazy(() => import('./pages/Portfolio'));
 const PublicPortfolio = React.lazy(() => import('./pages/PublicPortfolio'));
 const Auth = React.lazy(() => import('./pages/Auth'));
+const AuthCallback = React.lazy(() => import('./pages/AuthCallback'));
 
 const App: React.FC = () => {
   return (
@@ -25,6 +26,7 @@ const App: React.FC = () => {
               <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/login" element={<Auth type="login" />} />
               <Route path="/register" element={<Auth type="register" />} />
+              <Route path="/auth-callback" element={<AuthCallback />} />
               <Route path="/:username" element={<PublicPortfolio />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

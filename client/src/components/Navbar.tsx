@@ -2,6 +2,8 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store';
 import { FileText, Layout, User, BarChart3, LogOut } from 'lucide-react';
+import { supabase } from '../supabase';
+import axios from 'axios';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuthStore();
@@ -42,7 +44,15 @@ const Navbar: React.FC = () => {
           <div className="flex items-center space-x-4">
             <span className="text-sm font-medium text-gray-700">Hi, {user.name}</span>
             <button
-              onClick={logout}
+              onClick={async () => {
+                await supabase.auth.signOut();
+                try {
+                  await axios.post('http://localhost:5001/api/auth/logout');
+                } catch (e) {
+                  console.error('Logout error:', e);
+                }
+                logout();
+              }}
               className="p-2 text-gray-400 hover:text-red-500 transition-colors"
               title="Logout"
             >

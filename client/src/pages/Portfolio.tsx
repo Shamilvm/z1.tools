@@ -22,7 +22,7 @@ const Portfolio: React.FC = () => {
   const createPortfolio = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/portfolio/create', {
+      const response = await axios.post('http://localhost:5001/api/portfolio/create', {
         resumeData,
         theme: 'modern-purple'
       }, {
@@ -87,7 +87,7 @@ const Portfolio: React.FC = () => {
         <div className="card p-8 bg-primary-900 text-white flex flex-col justify-between">
           <div>
             <h3 className="text-xl font-bold mb-2">Resume Status</h3>
-            <p className="text-white/60 text-sm mb-6">Last synced: {portfolio ? new Date(portfolio.updatedAt).toLocaleDateString() : 'Never'}</p>
+            <p className="text-white/60 text-sm mb-6">Last synced: {portfolio ? new Date(portfolio.updated_at).toLocaleDateString() : 'Never'}</p>
             
             <div className="space-y-4">
                <div className="flex justify-between items-center text-sm">

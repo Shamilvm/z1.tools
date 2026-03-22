@@ -1,5 +1,5 @@
 import pdf from 'pdf-parse';
-import { getAtsSuggestionsFromText } from './aiService';
+import { getAtsAnalysis } from './aiService';
 
 export const analyzePdfAts = async (buffer: Buffer) => {
   try {
@@ -7,7 +7,7 @@ export const analyzePdfAts = async (buffer: Buffer) => {
     const text = data.text;
 
     // Basic heuristic + AI for better scoring
-    const aiReport = await getAtsSuggestionsFromText(text);
+    const aiReport = await getAtsAnalysis(text);
 
     return {
       textLength: text.length,
