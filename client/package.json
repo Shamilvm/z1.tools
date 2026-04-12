@@ -1,7 +1,7 @@
 {
-  "name": "client",
+  "name": "z1-tools-client",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,6 +13,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@react-pdf/renderer": "^4.3.2",
     "@supabase/supabase-js": "^2.99.3",
+    "@types/uuid": "^10.0.0",
     "axios": "^1.13.6",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.577.0",
@@ -23,6 +24,7 @@
     "react-hot-toast": "^2.6.0",
     "react-pdf": "^10.4.1",
     "react-router-dom": "^7.13.1",
+    "uuid": "^13.0.0",
     "zod": "^4.3.6",
     "zustand": "^5.0.12"
   },

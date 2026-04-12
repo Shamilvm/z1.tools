@@ -1,6 +1,6 @@
 import React from 'react';
 import { useResumeStore } from '../../store';
-import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 const ExperienceForm: React.FC = () => {
   const { resumeData, setResumeData } = useResumeStore();

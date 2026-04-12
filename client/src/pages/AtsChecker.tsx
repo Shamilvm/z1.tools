@@ -46,6 +46,7 @@ const AtsChecker: React.FC = () => {
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
         },
       );
       setReport(response.data);

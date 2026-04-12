@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
 import { supabase, adminSupabase } from '../services/supabaseService';
 import { protect, AuthRequest } from '../middleware/auth';
 
@@ -31,9 +32,16 @@ router.post('/register', async (req: Request, res: Response) => {
 
   // 2. Create profile in our public.profiles table
   // Use adminSupabase to handle cases where Auth user was created but profile wasn't (bypasses RLS)
+  const hashedPassword = await bcrypt.hash(password, 10);
   const { error: profileError } = await adminSupabase
     .from('profiles')
-    .upsert({ id: data.user.id, name, email, username }, { onConflict: 'id' });
+    .upsert({ 
+      id: data.user.id, 
+      name, 
+      email, 
+      username,
+      password: hashedPassword 
+    }, { onConflict: 'id' });
 
   if (profileError) {
     console.error('Profile creation error:', profileError);
@@ -63,34 +71,54 @@ router.post('/register', async (req: Request, res: Response) => {
 router.post('/login', async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
+  // 1. Get profile to check custom hash
+  const { data: profile, error: profileFetchError } = await adminSupabase
+    .from('profiles')
+    .select('*')
+    .eq('email', email)
+    .single();
+
+  if (profileFetchError || !profile) {
+    console.error('Profile fetch error:', profileFetchError?.message);
+    return res.status(401).json({ message: 'Invalid credentials: User not found' });
+  }
+
+  // 2. Compare bcrypt hash (if password exists in profile)
+  if (profile.password) {
+    const isMatch = await bcrypt.compare(password, profile.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials: Password mismatch' });
+    }
+  }
+
+  // 3. Authenticate with Supabase Auth to get a session
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
-  if (error) return res.status(401).json({ message: error.message });
-  if (!data.user) return res.status(401).json({ message: 'Login failed' });
-
-  // Get profile data
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', data.user.id)
-    .single();
+  if (error) {
+    console.error('Login error:', error.message);
+    return res.status(401).json({ message: error.message });
+  }
+  if (!data.user) return res.status(401).json({ message: 'Login failed: User not found' });
 
   if (data.session) {
     res.cookie('token', data.session.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
     });
+  } else {
+    return res.status(401).json({ message: 'Login failed: Please confirm your email address.' });
   }
 
   res.json({
     id: data.user.id,
-    name: profile?.name || data.user.user_metadata?.name || data.user.email,
+    name: profile.name || data.user.user_metadata?.name || data.user.email,
     email: data.user.email,
-    username: profile?.username || data.user.user_metadata?.username,
+    username: profile.username || data.user.user_metadata?.username,
   });
 });
 
@@ -117,6 +145,17 @@ router.post('/sync-profile', protect, async (req: AuthRequest, res: Response) =>
 
   if (profileError) {
     return res.status(400).json({ message: profileError.message });
+  }
+
+  // Set cookie for OAuth users
+  const token = req.headers.authorization?.split(' ')[1] || req.cookies.token;
+  if (token) {
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
+    });
   }
 
   res.json(profile);

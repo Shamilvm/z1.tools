@@ -19,7 +19,7 @@ const Auth: React.FC<AuthProps> = ({ type }) => {
     username: '',
   });
 
-  const { setUser, setToken } = useAuthStore();
+  const { setUser } = useAuthStore();
   const navigate = useNavigate();
 
   const validatePassword = (pass: string) => {
@@ -39,7 +39,7 @@ const Auth: React.FC<AuthProps> = ({ type }) => {
     const url = `http://localhost:5001/api/auth/${type}`;
     
     try {
-      const response = await axios.post(url, formData);
+      const response = await axios.post(url, formData, { withCredentials: true });
       setUser(response.data);
       toast.success(type === 'login' ? 'Welcome back!' : 'Account created!');
       navigate('/portfolio');

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Copy, X, Check } from 'lucide-react';
+import { Sparkles, Copy, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface AiSuggestionsProps {

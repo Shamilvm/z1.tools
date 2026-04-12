@@ -24,7 +24,8 @@ const AuthCallback: React.FC = () => {
         try {
           // Call our backend to sync/create profile for this user
           const response = await axios.post('http://localhost:5001/api/auth/sync-profile', {}, {
-            headers: { Authorization: `Bearer ${session.access_token}` }
+            headers: { Authorization: `Bearer ${session.access_token}` },
+            withCredentials: true
           });
           
           setUser(response.data);

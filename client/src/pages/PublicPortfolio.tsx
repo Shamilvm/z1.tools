@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Linkedin, Github, ExternalLink, Download, FileText, Briefcase, GraduationCap, Code, Trophy } from 'lucide-react';
+import { Mail, MapPin, Linkedin, Github, ExternalLink, Briefcase, GraduationCap, Code, Trophy } from 'lucide-react';
 import axios from 'axios';
 
 const PublicPortfolio: React.FC = () => {
@@ -33,7 +32,7 @@ const PublicPortfolio: React.FC = () => {
     </div>
   );
 
-  const { resumeId: resume, userId: user } = data;
+  const { resumeId: resume } = data;
 
   return (
     <div className="bg-gray-50 min-h-screen py-12 px-6">
