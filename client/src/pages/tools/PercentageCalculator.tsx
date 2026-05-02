@@ -3,22 +3,27 @@ import ToolLayout from '../../layouts/ToolLayout';
 import { Calculator } from 'lucide-react';
 
 const PercentageCalculator: React.FC = () => {
-  const [input, setInput] = useState('');
+  const [value, setValue] = useState('25');
+  const [total, setTotal] = useState('200');
+  const [percent, setPercent] = useState('15');
 
   return (
-    <ToolLayout title="Percentage Calc" description="Standard percentage calculations" icon={<Calculator size={24} />}> 
+    <ToolLayout title="Percentage Calc" description="Standard percentage calculations" icon={<Calculator size={24} />}>
       <div className="flex flex-col lg:flex-row gap-6 h-full min-h-[400px]">
-        <div className="flex-1 flex flex-col bg-white rounded-[2rem] border border-primary-50 shadow-sm p-6 relative">
-          <label className="text-sm font-semibold text-primary-600 mb-2 uppercase tracking-wide">Configuration / Input</label>
-          <textarea className="flex-1 w-full bg-white border border-primary-100 rounded-xl p-4 font-mono text-sm focus:ring-2 focus:ring-primary-400/20 focus:border-primary-400 transition-all resize-none shadow-sm" placeholder="Enter required input here..." value={input} onChange={(e) => setInput(e.target.value)} />
+        <div className="flex-1 flex flex-col gap-3 bg-white rounded-[2rem] border border-primary-50 shadow-sm p-6 relative">
+          <label className="text-sm font-semibold text-primary-600 uppercase tracking-wide">Value</label>
+          <input value={value} onChange={(e) => setValue(e.target.value)} className="border rounded-xl p-3 text-sm" />
+          <label className="text-sm font-semibold text-primary-600 uppercase tracking-wide">Total</label>
+          <input value={total} onChange={(e) => setTotal(e.target.value)} className="border rounded-xl p-3 text-sm" />
+          <label className="text-sm font-semibold text-primary-600 uppercase tracking-wide">Percent</label>
+          <input value={percent} onChange={(e) => setPercent(e.target.value)} className="border rounded-xl p-3 text-sm" />
         </div>
         <div className="flex-1 flex flex-col bg-white rounded-[2rem] border border-primary-50 shadow-sm p-6 relative group">
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-semibold text-primary-600 uppercase tracking-wide">Output View</label>
-            <button className="text-xs font-semibold text-white bg-primary-600 px-4 py-1.5 rounded-full hover:bg-primary-700 hover:shadow-lg shadow-primary-600/30 transition-all">Copy Result</button>
-          </div>
-          <div className="flex-1 w-full bg-primary-50/50 rounded-xl border border-primary-100 p-4 font-mono text-sm text-primary-900 overflow-auto shadow-inner">
-            {input ? 'Result will be generated here...' : 'Awaiting input to generate...'}
+          <label className="text-sm font-semibold text-primary-600 uppercase tracking-wide mb-2">Output</label>
+          <div className="flex-1 w-full bg-primary-50/50 rounded-xl border border-primary-100 p-4 text-sm text-primary-900 overflow-auto shadow-inner space-y-2">
+            <p>{value}% of {total} = {((Number(value) || 0) / 100 * (Number(total) || 0)).toFixed(2)}</p>
+            <p>{value} is what % of {total} = {((Number(value) || 0) / (Number(total) || 1) * 100).toFixed(2)}%</p>
+            <p>{percent}% increase on {total} = {((Number(total) || 0) * (1 + (Number(percent) || 0) / 100)).toFixed(2)}</p>
           </div>
         </div>
       </div>
